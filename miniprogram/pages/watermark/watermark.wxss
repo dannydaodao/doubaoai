@@ -1,0 +1,392 @@
+/* pages/watermark/watermark.wxss */
+.watermark-page {
+  height: 100vh;
+  background-color: #F6F7F9;
+  padding: 32rpx 32rpx 60rpx;
+}
+
+/* 顶部输入框卡片 */
+.input-card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 28rpx 32rpx;
+  position: relative;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.03);
+  margin-bottom: 32rpx;
+  min-height: 180rpx;
+}
+
+.link-input {
+  width: 82%;
+  height: 130rpx;
+  font-size: 28rpx;
+  color: #333333;
+  line-height: 1.5;
+}
+
+.card-action-btn {
+  position: absolute;
+  top: 28rpx;
+  right: 24rpx;
+}
+
+.paste-btn {
+  background: #EFEFFC;
+  color: #6C5CE7;
+  font-size: 24rpx;
+  padding: 12rpx 28rpx;
+  border-radius: 28rpx;
+  font-weight: 500;
+}
+
+.clear-btn {
+  width: 44rpx;
+  height: 44rpx;
+  background: #E0E0E0;
+  color: #FFFFFF;
+  border-radius: 22rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+}
+
+/* 大型解析按钮 */
+.parse-btn {
+  height: 96rpx;
+  line-height: 1 !important;
+  font-size: 34rpx;
+  border-radius: 48rpx;
+  margin-bottom: 24rpx;
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+}
+
+/* 选项行 */
+.options-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 12rpx;
+  margin-bottom: 40rpx;
+}
+
+.checkbox-box {
+  display: flex;
+  align-items: center;
+}
+
+.custom-checkbox {
+  width: 36rpx;
+  height: 36rpx;
+  border: 2rpx solid #CCCCCC;
+  border-radius: 8rpx;
+  margin-right: 12rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #FFFFFF;
+}
+
+.custom-checkbox.checked {
+  background: #6C5CE7;
+  border-color: #6C5CE7;
+}
+
+.check-mark {
+  color: #FFFFFF;
+  font-size: 24rpx;
+  font-weight: bold;
+}
+
+.option-label {
+  font-size: 28rpx;
+  color: #666666;
+}
+
+.history-link {
+  font-size: 28rpx;
+  color: #666666;
+}
+
+/* 已解析结果卡片区域 (对应截图 02.jpg) */
+.result-container {
+  margin-bottom: 40rpx;
+}
+
+.tabs-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 28rpx;
+}
+
+.tab-item {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #8C8C8C;
+  margin: 0 40rpx;
+  padding-bottom: 8rpx;
+  position: relative;
+}
+
+.tab-item.active {
+  color: #6C5CE7;
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40rpx;
+  height: 6rpx;
+  background: #6C5CE7;
+  border-radius: 3rpx;
+}
+
+/* 视频播放器 */
+.video-wrapper {
+  position: relative;
+  width: 100%;
+  height: 480rpx;
+  background: #000000;
+  border-radius: 20rpx;
+  overflow: hidden;
+  margin-bottom: 28rpx;
+}
+
+.video-player {
+  width: 100%;
+  height: 100%;
+}
+
+.video-duration-tag {
+  position: absolute;
+  bottom: 16rpx;
+  right: 16rpx;
+  background: rgba(0, 0, 0, 0.6);
+  color: #FFFFFF;
+  font-size: 22rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+}
+
+/* 2列功能操作卡片 */
+.action-grid {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 28rpx;
+}
+
+.action-card {
+  width: 48%;
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 28rpx 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.03);
+}
+
+.action-icon {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 12rpx;
+  background: #F4F2FF;
+}
+
+.icon-inner {
+  font-size: 32rpx;
+}
+
+.action-title {
+  font-size: 26rpx;
+  font-weight: 600;
+  color: #333333;
+}
+
+/* 时长与字数统计 */
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 16rpx;
+  margin-bottom: 20rpx;
+}
+
+.stat-item {
+  font-size: 26rpx;
+  color: #8A8A8A;
+}
+
+/* 文案卡片 */
+.transcript-card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 28rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.03);
+  margin-bottom: 40rpx;
+}
+
+.transcript-content {
+  font-size: 28rpx;
+  color: #333333;
+  line-height: 1.6;
+  margin-bottom: 24rpx;
+}
+
+.copy-transcript-btn {
+  background: #6C5CE7;
+  color: #FFFFFF;
+  border-radius: 36rpx;
+  font-size: 28rpx;
+  height: 72rpx;
+  line-height: 72rpx;
+  width: 100% !important;
+}
+
+/* 图文教程区域 */
+.tutorial-section {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 28rpx;
+  margin-bottom: 40rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.03);
+}
+
+.tutorial-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin-bottom: 24rpx;
+}
+
+.tutorial-grid {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tutorial-card {
+  width: 48%;
+  background: #F8F9FB;
+  border-radius: 16rpx;
+  padding: 20rpx;
+  position: relative;
+  height: 260rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.step-badge {
+  width: 36rpx;
+  height: 36rpx;
+  background: #E53935;
+  color: #FFFFFF;
+  border-radius: 18rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22rpx;
+  font-weight: bold;
+}
+
+.tutorial-content-mock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.tutorial-text-bubble {
+  background: #EFEFEF;
+  border-radius: 12rpx;
+  font-size: 20rpx;
+  color: #333;
+  padding: 8rpx 12rpx;
+  margin-bottom: 16rpx;
+  font-weight: 600;
+}
+
+.side-icons {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  width: 100%;
+  padding-right: 20rpx;
+}
+
+.avatar-circle {
+  width: 32rpx;
+  height: 32rpx;
+  border-radius: 16rpx;
+  background: #CCC;
+  margin-bottom: 8rpx;
+}
+
+.heart-icon, .comment-icon, .share-icon {
+  font-size: 22rpx;
+  color: #888;
+  margin-bottom: 6rpx;
+}
+
+.active-target {
+  color: #6C5CE7;
+  font-weight: bold;
+}
+
+.share-options-bar {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.color-dots {
+  display: flex;
+  margin-bottom: 12rpx;
+}
+
+.dot {
+  width: 24rpx;
+  height: 24rpx;
+  border-radius: 12rpx;
+  margin: 0 4rpx;
+}
+
+.d1 { background: #FFCC00; }
+.d2 { background: #FF3B30; }
+.d3 { background: #34C759; }
+.d4 { background: #007AFF; }
+
+.copy-btn-target {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chain-circle {
+  font-size: 28rpx;
+}
+
+.copy-label {
+  font-size: 18rpx;
+  color: #666;
+}
+
+/* 声明底部 */
+.disclaimer-footer {
+  text-align: center;
+  font-size: 22rpx;
+  color: #B2B2B2;
+  padding: 20rpx 0;
+}

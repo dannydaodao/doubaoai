@@ -1,0 +1,88 @@
+<!-- pages/watermark/watermark.wxml -->
+<scroll-view scroll-y class="watermark-page">
+
+  <!-- 顶部作品链接输入卡片 -->
+  <view class="input-card">
+    <textarea 
+      class="link-input" 
+      placeholder="请粘贴作品链接" 
+      placeholder-style="color: #BBBBBB;" 
+      value="{{linkText}}" 
+      bindinput="onInputLink" 
+      maxlength="500"
+      auto-height="{{false}}"
+    />
+    
+    <!-- 顶部右上角按钮：为空时显示"粘贴链接"，有内容时显示"清除X" -->
+    <view class="card-action-btn">
+      <block wx:if="{{!linkText}}">
+        <view class="paste-btn" bindtap="pasteClipboard">粘贴链接</view>
+      </block>
+      <block wx:else>
+        <view class="clear-btn" bindtap="clearInput">✕</view>
+      </block>
+    </view>
+  </view>
+
+  <!-- 大尺寸解析按钮 -->
+  <button class="btn-primary parse-btn" bindtap="handleParse" loading="{{parsing}}" disabled="{{parsing}}">
+    {{parsing ? '解析中...' : '解析'}}
+  </button>
+
+  <!-- 选项与历史记录行 -->
+  <view class="options-row">
+    <view class="checkbox-box" bindtap="toggleAutoRecognize">
+      <view class="custom-checkbox {{autoRecognize ? 'checked' : ''}}">
+        <text wx:if="{{autoRecognize}}" class="check-mark">✓</text>
+      </view>
+      <text class="option-label">自动识别链接</text>
+    </view>
+    <view class="history-link" bindtap="navToHistory">历史记录</view>
+  </view>
+
+  <!-- 已解析的视频结果区域 -->
+  <block wx:if="{{parsedResult}}">
+    <view class="result-container">
+      
+      <!-- 视频播放器区域 -->
+      <view class="video-wrapper">
+        <video 
+          id="mainVideo" 
+          class="video-player" 
+          src="{{parsedResult.videoUrl}}" 
+          poster="{{parsedResult.coverUrl}}"
+          controls 
+          show-fullscreen-btn 
+          object-fit="contain"
+        >
+        </video>
+      </view>
+
+      <!-- 2个核心快捷功能操作卡片：复制链接 / 保存到相册 -->
+      <view class="action-grid action-grid-two">
+        <!-- 复制链接 -->
+        <view class="action-card" bindtap="copyVideoUrl">
+          <view class="action-icon icon-link-chain">
+            <text class="icon-inner">🔗</text>
+          </view>
+          <text class="action-title">复制链接</text>
+        </view>
+
+        <!-- 保存视频到相册 -->
+        <view class="action-card" bindtap="saveVideoToAlbum">
+          <view class="action-icon icon-share-download">
+            <text class="icon-inner">📥</text>
+          </view>
+          <text class="action-title">保存到相册</text>
+        </view>
+      </view>
+
+    </view>
+  </block>
+
+  <!-- 底部版权声明 -->
+  <view class="disclaimer-footer">
+    作品归平台及作者所有，本站不存储任何作品
+  </view>
+
+</scroll-view>

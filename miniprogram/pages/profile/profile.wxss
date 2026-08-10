@@ -1,0 +1,136 @@
+/* pages/profile/profile.wxss */
+.profile-page {
+  min-height: 100vh;
+  background-color: #F6F7F9;
+  padding-bottom: 60rpx;
+}
+
+.profile-header {
+  background: linear-gradient(180deg, #6C5CE7 0%, #7F66FF 100%);
+  padding: 40rpx 40rpx 100rpx;
+  display: flex;
+  align-items: center;
+}
+
+.avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  border: 4rpx solid rgba(255, 255, 255, 0.8);
+  margin-right: 28rpx;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.nickname {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #FFFFFF;
+  margin-bottom: 10rpx;
+}
+
+.vip-tag {
+  font-size: 22rpx;
+  color: #FFE699;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 4rpx 16rpx;
+  border-radius: 20rpx;
+  display: inline-block;
+}
+
+/* 统计卡片 */
+.stat-card {
+  margin: -60rpx 32rpx 32rpx;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 32rpx;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.04);
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-num {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #6C5CE7;
+  margin-bottom: 6rpx;
+}
+
+.stat-label {
+  font-size: 24rpx;
+  color: #8C8C8C;
+}
+
+.stat-divider {
+  width: 1rpx;
+  height: 50rpx;
+  background: #EFEFEF;
+}
+
+/* 菜单列表 */
+.menu-list {
+  margin: 0 32rpx 40rpx;
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  overflow: hidden;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.03);
+}
+
+.menu-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 32rpx;
+  border-bottom: 1rpx solid #F6F6F6;
+  background: #FFFFFF;
+}
+
+.contact-btn {
+  width: 100% !important;
+  font-weight: normal;
+  border-radius: 0;
+  border: none;
+  text-align: left;
+  line-height: normal;
+}
+
+.contact-btn::after {
+  border: none;
+}
+
+.menu-left {
+  display: flex;
+  align-items: center;
+}
+
+.menu-icon {
+  font-size: 36rpx;
+  margin-right: 20rpx;
+}
+
+.menu-title {
+  font-size: 28rpx;
+  color: #333333;
+  font-weight: 500;
+}
+
+.arrow {
+  font-size: 32rpx;
+  color: #CCCCCC;
+}
+
+.version-info {
+  text-align: center;
+  font-size: 22rpx;
+  color: #B2B2B2;
+}

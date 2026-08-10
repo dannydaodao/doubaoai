@@ -1,0 +1,35 @@
+<!-- pages/history/history.wxml -->
+<view class="history-page">
+  <view class="header-row">
+    <text class="total-count">共 {{historyList.length}} 条解析记录</text>
+    <view wx:if="{{historyList.length > 0}}" class="clear-all-btn" bindtap="clearHistory">清空记录</view>
+  </view>
+
+  <scroll-view scroll-y class="history-list">
+    <block wx:if="{{historyList.length > 0}}">
+      <view class="history-card" wx:for="{{historyList}}" wx:key="id">
+        <view class="card-top">
+          <view class="platform-tag">{{item.platform}}</view>
+          <text class="create-time">{{item.createTime}}</text>
+        </view>
+        <view class="card-body">
+          <image class="cover-img" src="{{item.coverUrl || 'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=600&auto=format&fit=crop&q=80'}}" mode="aspectFill"></image>
+          <view class="item-info">
+            <text class="item-title">{{item.title}}</text>
+            <text class="item-url">{{item.url}}</text>
+          </view>
+        </view>
+        <view class="card-actions">
+          <button class="action-main-btn" bindtap="saveToAlbum" data-url="{{item.videoUrl}}">保存到相册</button>
+        </view>
+      </view>
+    </block>
+
+    <block wx:else>
+      <view class="empty-box">
+        <view class="empty-icon">📂</view>
+        <text class="empty-text">暂无解析历史记录</text>
+      </view>
+    </block>
+  </scroll-view>
+</view>

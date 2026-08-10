@@ -1,0 +1,141 @@
+/* pages/history/history.wxss */
+.history-page {
+  height: 100vh;
+  background-color: #F6F7F9;
+  padding: 28rpx 32rpx;
+}
+
+.header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.total-count {
+  font-size: 26rpx;
+  color: #8C8C8C;
+}
+
+.clear-all-btn {
+  font-size: 26rpx;
+  color: #FF3B30;
+}
+
+.history-list {
+  height: calc(100vh - 100rpx);
+}
+
+.history-card {
+  background: #FFFFFF;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.03);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.platform-tag {
+  background: #F0EDFF;
+  color: #6C5CE7;
+  font-size: 22rpx;
+  font-weight: 600;
+  padding: 4rpx 16rpx;
+  border-radius: 12rpx;
+}
+
+.create-time {
+  font-size: 22rpx;
+  color: #AAAAAA;
+}
+
+.card-body {
+  display: flex;
+  margin-bottom: 20rpx;
+}
+
+.cover-img {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 14rpx;
+  margin-right: 20rpx;
+  background: #EEEEEE;
+  flex-shrink: 0;
+}
+
+.item-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  overflow: hidden;
+}
+
+.item-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #333333;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.item-url {
+  font-size: 22rpx;
+  color: #999999;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
+
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1rpx solid #F0F0F0;
+  padding-top: 16rpx;
+}
+
+.action-sub-btn {
+  background: #F6F7F9;
+  color: #666666;
+  font-size: 24rpx;
+  padding: 10rpx 28rpx;
+  border-radius: 28rpx;
+  margin-right: 16rpx;
+  margin-left: 0 !important;
+  width: auto !important;
+}
+
+.action-main-btn {
+  background: #6C5CE7;
+  color: #FFFFFF;
+  font-size: 24rpx;
+  padding: 10rpx 28rpx;
+  border-radius: 28rpx;
+  margin-left: 0 !important;
+  width: auto !important;
+}
+
+.empty-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-top: 200rpx;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 20rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999999;
+}

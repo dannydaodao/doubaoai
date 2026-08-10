@@ -1,0 +1,84 @@
+<!-- pages/index/index.wxml -->
+<scroll-view scroll-y class="home-page">
+
+  <!-- 顶部紫罗兰渐变 Header 区域 -->
+  <view class="header-card">
+    <view class="brand-title">斗宝Ai助手</view>
+    <view class="brand-subtitle">让 AI 为你的创作效率加持</view>
+  </view>
+
+  <!-- 工具箱标题分界行 -->
+  <view class="section-header">
+    <text class="section-title">创作工具箱</text>
+  </view>
+
+  <!-- 2x4 平衡布局工具网格 -->
+  <view class="tools-grid">
+
+    <!-- 1. 视频去水印 (已开启，点击直达去水印明细页) -->
+    <view class="tool-card" bindtap="navToWatermark">
+      <view class="icon-badge icon-bg-violet">
+        <text class="card-emoji">🎬</text>
+      </view>
+      <text class="card-title">视频去水印</text>
+    </view>
+
+    <!-- 以下未完成功能卡片已全量注释封存，保留代码结构
+    <view class="tool-card" bindtap="onDevTool" data-name="AI灵感文案">
+      <view class="icon-badge icon-bg-pink">
+        <text class="card-emoji">✍️</text>
+      </view>
+      <text class="card-title">AI灵感文案</text>
+    </view>
+
+    <view class="tool-card" bindtap="onDevTool" data-name="AI智能配音">
+      <view class="icon-badge icon-bg-orange">
+        <text class="card-emoji">🎤</text>
+      </view>
+      <text class="card-title">AI智能配音</text>
+    </view>
+
+    <view class="tool-card" bindtap="onDevTool" data-name="AI灵感绘图">
+      <view class="icon-badge icon-bg-blue">
+        <text class="card-emoji">🎨</text>
+      </view>
+      <text class="card-title">AI灵感绘图</text>
+    </view>
+
+    <view class="tool-card" bindtap="onDevTool" data-name="字幕提取">
+      <view class="icon-badge icon-bg-green">
+        <text class="card-emoji">📝</text>
+      </view>
+      <text class="card-title">字幕提取</text>
+    </view>
+
+    <view class="tool-card" bindtap="onDevTool" data-name="图片变清晰">
+      <view class="icon-badge icon-bg-amber">
+        <text class="card-emoji">🔍</text>
+      </view>
+      <text class="card-title">图片变清晰</text>
+    </view>
+
+    <view class="tool-card" bindtap="onDevTool" data-name="人声分离">
+      <view class="icon-badge icon-bg-teal">
+        <text class="card-emoji">📊</text>
+      </view>
+      <text class="card-title">人声分离</text>
+    </view>
+
+    <view class="tool-card" bindtap="onDevTool" data-name="更多工具">
+      <view class="icon-badge icon-bg-purple">
+        <text class="card-emoji">⚡</text>
+      </view>
+      <text class="card-title">更多工具</text>
+    </view>
+    -->
+
+  </view>
+
+  <!-- 底部版权文案 -->
+  <view class="footer-copy">
+    斗宝Ai助手 · 智能生活 化繁为简
+  </view>
+
+</scroll-view>

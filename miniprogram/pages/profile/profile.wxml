@@ -1,0 +1,69 @@
+<!-- pages/profile/profile.wxml -->
+<view class="profile-page">
+  <!-- 头部个人信息卡片 -->
+  <view class="profile-header">
+    <image class="avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80" mode="aspectFill"></image>
+    <view class="user-info">
+      <text class="nickname">斗宝Ai创作会员</text>
+      <text class="vip-tag">VIP 高级去水印权益中</text>
+    </view>
+  </view>
+
+  <!-- 统计卡片 -->
+  <view class="stat-card">
+    <view class="stat-item" bindtap="navToHistory">
+      <text class="stat-num">{{historyCount}}</text>
+      <text class="stat-label">解析记录</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-num">无限</text>
+      <text class="stat-label">剩余次数</text>
+    </view>
+    <view class="stat-divider"></view>
+    <view class="stat-item">
+      <text class="stat-num">100%</text>
+      <text class="stat-label">成功率</text>
+    </view>
+  </view>
+
+  <!-- 功能列表 -->
+  <view class="menu-list">
+    <view class="menu-item" bindtap="navToWatermark">
+      <view class="menu-left">
+        <text class="menu-icon">💧</text>
+        <text class="menu-title">视频/图集去水印</text>
+      </view>
+      <text class="arrow">›</text>
+    </view>
+
+    <view class="menu-item" bindtap="navToHistory">
+      <view class="menu-left">
+        <text class="menu-icon">📜</text>
+        <text class="menu-title">解析历史管理</text>
+      </view>
+      <text class="arrow">›</text>
+    </view>
+
+    <view class="menu-item" bindtap="clearStorage">
+      <view class="menu-left">
+        <text class="menu-icon">🗑️</text>
+        <text class="menu-title">清理本地缓存</text>
+      </view>
+      <text class="arrow">›</text>
+    </view>
+
+    <button class="menu-item contact-btn" open-type="contact">
+      <view class="menu-left">
+        <text class="menu-icon">🎧</text>
+        <text class="menu-title">在线客服与反馈</text>
+      </view>
+      <text class="arrow">›</text>
+    </button>
+  </view>
+
+  <!-- 版本号 -->
+  <view class="version-info">
+    <text>斗宝Ai助手 v1.2.0 · 高清去水印引擎</text>
+  </view>
+</view>

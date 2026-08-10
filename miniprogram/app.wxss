@@ -1,0 +1,39 @@
+/** app.wxss **/
+page {
+  background-color: #F6F7F9;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Segoe UI, Arial, Roboto, 'PingFang SC', 'miui', 'Hiragino Sans GB', 'Microsoft Yahei', sans-serif;
+  color: #333333;
+  box-sizing: border-box;
+  font-size: 28rpx;
+}
+
+view, scroll-view, text, image, input, textarea, button {
+  box-sizing: border-box;
+}
+
+/* 常用渐变与按钮类 */
+.bg-purple-gradient {
+  background: linear-gradient(135deg, #6C5CE7 0%, #8C7CFF 100%);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #6C5CE7 0%, #8C7CFF 100%);
+  color: #FFFFFF;
+  border-radius: 44rpx;
+  text-align: center;
+  font-weight: 600;
+  box-shadow: 0 8rpx 20rpx rgba(108, 92, 231, 0.25);
+  transition: all 0.2s ease;
+}
+
+.btn-primary:active {
+  opacity: 0.9;
+  transform: scale(0.98);
+}
+
+.card-box {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0, 0, 0, 0.04);
+}
