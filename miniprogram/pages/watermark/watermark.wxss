@@ -176,7 +176,7 @@
   border-radius: 8rpx;
 }
 
-/* 2列功能操作卡片 */
+/* 3列功能操作卡片 */
 .action-grid {
   display: flex;
   justify-content: space-between;
@@ -184,10 +184,10 @@
 }
 
 .action-card {
-  width: 48%;
+  width: 31%;
   background: #FFFFFF;
   border-radius: 20rpx;
-  padding: 28rpx 16rpx;
+  padding: 24rpx 12rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -228,30 +228,51 @@
   color: #8A8A8A;
 }
 
-/* 文案卡片 */
+/* 提取文案卡片与文本框 */
 .transcript-card {
   background: #FFFFFF;
-  border-radius: 24rpx;
-  padding: 28rpx;
-  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.03);
-  margin-bottom: 40rpx;
+  border-radius: 20rpx;
+  padding: 24rpx;
+  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.04);
+  margin-top: 24rpx;
 }
 
-.transcript-content {
+.transcript-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+
+.transcript-card-title {
   font-size: 28rpx;
+  font-weight: 600;
   color: #333333;
-  line-height: 1.6;
-  margin-bottom: 24rpx;
 }
 
-.copy-transcript-btn {
-  background: #6C5CE7;
-  color: #FFFFFF;
-  border-radius: 36rpx;
-  font-size: 28rpx;
-  height: 72rpx;
-  line-height: 72rpx;
-  width: 100% !important;
+.copy-text-btn {
+  background: #EFEFFC;
+  color: #6C5CE7;
+  font-size: 24rpx;
+  padding: 8rpx 20rpx;
+  border-radius: 24rpx;
+  font-weight: 500;
+}
+
+.transcript-scroll-box {
+  max-height: 320rpx;
+  background: #F8F9FB;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+
+.transcript-content-text {
+  font-size: 26rpx;
+  color: #444444;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 /* 图文教程区域 */

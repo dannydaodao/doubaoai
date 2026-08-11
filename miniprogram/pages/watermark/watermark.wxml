@@ -58,9 +58,9 @@
         </video>
       </view>
 
-      <!-- 2个核心快捷功能操作卡片：复制链接 / 保存到相册 -->
-      <view class="action-grid action-grid-two">
-        <!-- 复制链接 -->
+      <!-- 3个核心快捷功能操作卡片：复制链接 / 提取文案 / 保存到相册 -->
+      <view class="action-grid">
+        <!-- 1. 复制链接 -->
         <view class="action-card" bindtap="copyVideoUrl">
           <view class="action-icon icon-link-chain">
             <text class="icon-inner">🔗</text>
@@ -68,7 +68,15 @@
           <text class="action-title">复制链接</text>
         </view>
 
-        <!-- 保存视频到相册 -->
+        <!-- 2. 提取文案 -->
+        <view class="action-card" bindtap="copyTranscript">
+          <view class="action-icon icon-copy-text">
+            <text class="icon-inner">📝</text>
+          </view>
+          <text class="action-title">提取文案</text>
+        </view>
+
+        <!-- 3. 保存视频到相册 -->
         <view class="action-card" bindtap="saveVideoToAlbum">
           <view class="action-icon icon-share-download">
             <text class="icon-inner">📥</text>
@@ -76,6 +84,19 @@
           <text class="action-title">保存到相册</text>
         </view>
       </view>
+
+      <!-- 已提取文案展示文本框卡片 -->
+      <block wx:if="{{showTranscript && parsedResult}}">
+        <view class="transcript-card">
+          <view class="transcript-card-header">
+            <text class="transcript-card-title">📝 作品文案描述</text>
+            <view class="copy-text-btn" bindtap="copyTranscriptText">一键复制</view>
+          </view>
+          <scroll-view scroll-y class="transcript-scroll-box">
+            <text selectable class="transcript-content-text">{{parsedResult.transcript || parsedResult.title}}</text>
+          </scroll-view>
+        </view>
+      </block>
 
     </view>
   </block>

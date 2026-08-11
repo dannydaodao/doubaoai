@@ -9,6 +9,7 @@ Page({
     parsing: false,
     autoRecognize: true,
     activeTab: 'video', // 'video' | 'transcript'
+    showTranscript: false,
     parsedResult: null as ParseResult | null
   },
 
@@ -81,6 +82,7 @@ Page({
   clearInput() {
     this.setData({
       linkText: '',
+      showTranscript: false,
       parsedResult: null
     });
   },
@@ -146,6 +148,7 @@ Page({
           this.setData({
             parsing: false,
             parsedResult: result,
+            showTranscript: false,
             activeTab: 'video'
           });
 
@@ -317,18 +320,57 @@ Page({
   },
 
   /**
-   * 一键复制文案
+   * 提取文案：展开文本框并同步一键复制 (支持抖音、快手、B站、小红书)
    */
   copyTranscript() {
-    if (!this.data.parsedResult) return;
+    if (!this.data.parsedResult) {
+      wx.showToast({
+        title: '无可提取文案',
+        icon: 'none'
+      });
+      return;
+    }
+    const textToCopy = this.data.parsedResult.transcript || this.data.parsedResult.title || '';
+    if (!textToCopy) {
+      wx.showToast({
+        title: '作品未包含文字描述',
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 展开文案文本框
+    this.setData({
+      showTranscript: true
+    });
+
     wx.setClipboardData({
-      data: this.data.parsedResult.transcript,
+      data: textToCopy,
       success: () => {
         wx.showToast({
-          title: '文案已复制到剪贴板',
+          title: '已提取文案并复制',
           icon: 'success'
         });
       }
     });
+  },
+
+  /**
+   * 文本框右上角“一键复制”独立绑定
+   */
+  copyTranscriptText() {
+    if (!this.data.parsedResult) return;
+    const textToCopy = this.data.parsedResult.transcript || this.data.parsedResult.title || '';
+    if (textToCopy) {
+      wx.setClipboardData({
+        data: textToCopy,
+        success: () => {
+          wx.showToast({
+            title: '已复制到剪贴板',
+            icon: 'success'
+          });
+        }
+      });
+    }
   }
 });
