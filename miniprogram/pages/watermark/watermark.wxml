@@ -93,7 +93,7 @@
             <view class="copy-text-btn" bindtap="copyTranscriptText">一键复制</view>
           </view>
           <scroll-view scroll-y class="transcript-scroll-box">
-            <text selectable class="transcript-content-text">{{parsedResult.transcript || parsedResult.title}}</text>
+            <text selectable class="transcript-content-text">{{parsedResult.transcript || '（未检测到语音配音文案）'}}</text>
           </scroll-view>
         </view>
       </block>

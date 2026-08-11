@@ -16,6 +16,7 @@ export interface ParseResult {
   transcript: string;
   wordCount: number;
   createTime: string;
+  asrTaskId?: string;
 }
 
 /**

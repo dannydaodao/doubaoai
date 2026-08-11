@@ -2,10 +2,221 @@
 const cloud = require('wx-server-sdk');
 const https = require('https');
 const http = require('http');
+const crypto = require('crypto');
+const querystring = require('querystring');
+
+// =========================================================================
+// 阿里云 ASR 智能语音识别纯净版配置 (从云函数环境变量中读取)
+// =========================================================================
+const ALIYUN_ASR_CONFIG = {
+  ENABLED: process.env.ALIYUN_ASR_ENABLED !== 'false', // 默认开启，除非显式配置为 'false'
+  APPKEY: process.env.ALIYUN_ASR_APPKEY || '',
+  ACCESS_KEY_ID: process.env.ALIYUN_ASR_ACCESS_KEY_ID || '',
+  ACCESS_KEY_SECRET: process.env.ALIYUN_ASR_ACCESS_KEY_SECRET || ''
+};
 
 cloud.init({
   env: cloud.DYNAMIC_CURRENT_ENV
 });
+
+/**
+ * 阿里云 URL 特殊字符编码
+ */
+function percentEncode(str) {
+  return encodeURIComponent(str)
+    .replace(/!/g, '%21')
+    .replace(/'/g, '%27')
+    .replace(/\(/g, '%28')
+    .replace(/\)/g, '%29')
+    .replace(/\*/g, '%2A');
+}
+
+/**
+ * 阿里云 ASR 使用 AccessKey 自动换取 24小时有效 Token (HMAC-SHA1 签名算法)
+ */
+function getAliyunToken(accessKeyId, accessKeySecret) {
+  return new Promise((resolve) => {
+    if (!accessKeyId || !accessKeySecret) return resolve(null);
+
+    const params = {
+      AccessKeyId: accessKeyId,
+      Action: 'CreateToken',
+      Version: '2019-02-28',
+      Format: 'JSON',
+      RegionId: 'cn-shanghai',
+      Timestamp: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
+      SignatureMethod: 'HMAC-SHA1',
+      SignatureVersion: '1.0',
+      SignatureNonce: String(Math.random())
+    };
+
+    const keys = Object.keys(params).sort();
+    const canonicalizedQueryString = keys.map(k => `${percentEncode(k)}=${percentEncode(params[k])}`).join('&');
+    const stringToSign = `GET&%2F&${percentEncode(canonicalizedQueryString)}`;
+
+    const hmac = crypto.createHmac('sha1', accessKeySecret + '&');
+    hmac.update(stringToSign);
+    const signature = hmac.digest('base64');
+
+    const requestUrl = `https://nls-meta.cn-shanghai.aliyuncs.com/?Signature=${percentEncode(signature)}&${canonicalizedQueryString}`;
+
+    https.get(requestUrl, (res) => {
+      let body = '';
+      res.on('data', chunk => body += chunk);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(body);
+          if (json.Token && json.Token.Id) {
+            resolve(json.Token.Id);
+          } else {
+            console.error('Aliyun Token Response Error:', body);
+            resolve(null);
+          }
+        } catch (e) {
+          resolve(null);
+        }
+      });
+    }).on('error', (err) => {
+      console.error('Aliyun Token HTTP error:', err);
+      resolve(null);
+    });
+  });
+}
+
+/**
+ * 下载视频二进制数据 (云函数自身下载，绕过 CDN 防盗链)
+ */
+function downloadVideoBuffer(videoUrl) {
+  return new Promise((resolve) => {
+    const lib = videoUrl.startsWith('https') ? https : http;
+    lib.get(videoUrl, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+        'Referer': 'https://www.douyin.com/'
+      }
+    }, (res) => {
+      // 跟随 302 重定向
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        downloadVideoBuffer(res.headers.location).then(resolve);
+        return;
+      }
+      const chunks = [];
+      res.on('data', chunk => chunks.push(chunk));
+      res.on('end', () => resolve(Buffer.concat(chunks)));
+    }).on('error', () => resolve(null));
+  });
+}
+
+/**
+ * 阿里云 ASR Flash 极速识别 (云函数下载视频二进制 → 直接 POST 给阿里云 → 同步返回文案)
+ */
+function doAliyunRpcRequest(action, extraParams) {
+  return new Promise((resolve) => {
+    const params = {
+      AccessKeyId: ALIYUN_ASR_CONFIG.ACCESS_KEY_ID,
+      Action: action,
+      Version: '2018-08-17',
+      Format: 'JSON',
+      RegionId: 'cn-shanghai',
+      Timestamp: new Date().toISOString().replace(/\.\d{3}Z$/, 'Z'),
+      SignatureMethod: 'HMAC-SHA1',
+      SignatureVersion: '1.0',
+      SignatureNonce: String(Math.random()),
+      ...extraParams
+    };
+    
+    const keys = Object.keys(params).sort();
+    const canonicalizedQueryString = keys.map(k => `${percentEncode(k)}=${percentEncode(params[k])}`).join('&');
+    const method = action === 'SubmitTask' ? 'POST' : 'GET';
+    const stringToSign = `${method}&%2F&${percentEncode(canonicalizedQueryString)}`;
+    
+    const hmac = crypto.createHmac('sha1', ALIYUN_ASR_CONFIG.ACCESS_KEY_SECRET + '&');
+    hmac.update(stringToSign);
+    params.Signature = hmac.digest('base64');
+    
+    let options;
+    if (method === 'POST') {
+      const postData = querystring.stringify(params);
+      options = {
+        hostname: 'filetrans.cn-shanghai.aliyuncs.com',
+        path: '/',
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Content-Length': Buffer.byteLength(postData)
+        }
+      };
+      const req = https.request(options, (res) => {
+        let body = '';
+        res.on('data', chunk => body += chunk);
+        res.on('end', () => resolve(JSON.parse(body)));
+      });
+      req.write(postData);
+      req.end();
+    } else {
+      const qs = querystring.stringify(params);
+      options = {
+        hostname: 'filetrans.cn-shanghai.aliyuncs.com',
+        path: '/?' + qs,
+        method: 'GET'
+      };
+      const req = https.request(options, (res) => {
+        let body = '';
+        res.on('data', chunk => body += chunk);
+        res.on('end', () => resolve(JSON.parse(body)));
+      });
+      req.end();
+    }
+  });
+}
+
+/**
+ * 阿里云 ASR 提交任务
+ */
+async function submitAliyunAsrTask(videoUrl) {
+  if (!ALIYUN_ASR_CONFIG.ENABLED || !ALIYUN_ASR_CONFIG.APPKEY || !ALIYUN_ASR_CONFIG.ACCESS_KEY_ID) {
+    return null;
+  }
+  try {
+    const taskStr = JSON.stringify({
+      appkey: ALIYUN_ASR_CONFIG.APPKEY,
+      file_link: videoUrl,
+      version: "4.0",
+      enable_words: false,
+      enable_sample_rate_adaptive: true
+    });
+    const submitRes = await doAliyunRpcRequest('SubmitTask', { Task: taskStr });
+    if (submitRes && submitRes.TaskId) {
+      return submitRes.TaskId;
+    }
+    console.error('Aliyun FileTrans Submit Error:', submitRes);
+  } catch (e) {
+    console.error('Aliyun ASR submit fail:', e);
+  }
+  return null;
+}
+
+/**
+ * 阿里云 ASR 查询任务结果
+ */
+async function queryAliyunAsrTask(taskId) {
+  try {
+    const getRes = await doAliyunRpcRequest('GetTaskResult', { TaskId: taskId });
+    if (getRes.StatusCode === 21050000) {
+      if (getRes.Result && getRes.Result.Sentences) {
+        return { status: 'SUCCESS', text: getRes.Result.Sentences.map(s => s.Text).join('') };
+      }
+      return { status: 'SUCCESS', text: '' };
+    }
+    if (getRes.StatusCode === 21050001 || getRes.StatusCode === 21050002) {
+      return { status: 'RUNNING' };
+    }
+    return { status: 'FAILED', error: getRes };
+  } catch (e) {
+    console.error('Aliyun ASR query fail:', e);
+    return { status: 'FAILED', error: e.message };
+  }
+}
 
 /**
  * 禁用 302 自动跟随，获取 Location 请求头
@@ -438,6 +649,19 @@ async function parseSph(rawUrl, text) {
 
 // 云函数入口主函数（0.1秒纯解析、超强稳定、零负荷）
 exports.main = async (event, context) => {
+  // 单独处理查询 ASR 任务的逻辑
+  if (event.action === 'query_asr') {
+    if (!event.taskId) return { code: 400, msg: '缺少 taskId' };
+    const res = await queryAliyunAsrTask(event.taskId);
+    if (res.status === 'SUCCESS') {
+      return { code: 200, data: { status: 'SUCCESS', transcript: res.text } };
+    } else if (res.status === 'RUNNING') {
+      return { code: 200, data: { status: 'RUNNING', transcript: '正在提取中...' } };
+    } else {
+      return { code: 500, msg: '提取失败', error: res.error };
+    }
+  }
+
   const inputText = event.url || '';
   const url = extractUrl(inputText);
   const platform = detectPlatform(inputText);
@@ -465,6 +689,17 @@ exports.main = async (event, context) => {
     }
 
     if (result && result.videoUrl) {
+      // 异步提交 ASR 任务，不阻塞解析流程
+      if (ALIYUN_ASR_CONFIG.ENABLED) {
+        const taskId = await submitAliyunAsrTask(result.videoUrl);
+        if (taskId) {
+          result.asrTaskId = taskId;
+          result.transcript = '提取中...（请点击刷新或重试）';
+        } else {
+          result.transcript = '';
+        }
+      }
+
       const now = new Date();
       result.id = Date.now().toString();
       result.originalText = inputText;

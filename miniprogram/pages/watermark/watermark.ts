@@ -312,17 +312,77 @@ Page({
   /**
    * 提取/复制文案
    */
-  extractTranscript() {
+  async extractTranscript() {
     this.setData({
       activeTab: 'transcript'
     });
+    
+    // 如果还没提取完，先查询一次
+    if (this.data.parsedResult && this.data.parsedResult.transcript === '提取中...（请点击刷新或重试）') {
+      const finished = await this.queryASRStatus();
+      if (!finished) return; // 还在提取中或失败，终止后续复制
+    }
+    
     this.copyTranscript();
   },
 
   /**
-   * 提取文案：展开文本框并同步一键复制 (支持抖音、快手、B站、小红书)
+   * 查询 ASR 任务状态
    */
-  copyTranscript() {
+  queryASRStatus(): Promise<boolean> {
+    return new Promise((resolve) => {
+      if (!this.data.parsedResult || !this.data.parsedResult.asrTaskId) {
+        resolve(false);
+        return;
+      }
+      
+      wx.showLoading({ title: '正在查询文案...', mask: true });
+      
+      wx.cloud.callFunction({
+        name: 'doubaoai',
+        data: {
+          action: 'query_asr',
+          taskId: this.data.parsedResult.asrTaskId
+        },
+        success: (res: any) => {
+          wx.hideLoading();
+          if (res.result && res.result.code === 200) {
+            const asrData = res.result.data;
+            if (asrData.status === 'SUCCESS') {
+               // 更新文案
+               const newResult = { ...this.data.parsedResult, transcript: asrData.transcript, asrTaskId: undefined };
+               this.setData({ parsedResult: newResult });
+               
+               // 同步更新历史记录
+               app.addHistory(newResult);
+               
+               resolve(true);
+            } else if (asrData.status === 'RUNNING') {
+               wx.showToast({ title: '提取中，请稍后再试', icon: 'none' });
+               resolve(false);
+            } else {
+               wx.showToast({ title: '提取失败，请重试', icon: 'none' });
+               resolve(false);
+            }
+          } else {
+            wx.showToast({ title: '查询失败或已过期', icon: 'none' });
+            resolve(false);
+          }
+        },
+        fail: (err) => {
+          wx.hideLoading();
+          console.error('Query ASR error:', err);
+          wx.showToast({ title: '网络查询失败', icon: 'none' });
+          resolve(false);
+        }
+      });
+    });
+  },
+
+  /**
+   * 提取文案：展开文本框并同步一键复制 (纯粹 ASR 口播文案)
+   */
+  async copyTranscript() {
     if (!this.data.parsedResult) {
       wx.showToast({
         title: '无可提取文案',
@@ -330,10 +390,17 @@ Page({
       });
       return;
     }
-    const textToCopy = this.data.parsedResult.transcript || this.data.parsedResult.title || '';
+    
+    // 如果还没提取完，先查询一次
+    if (this.data.parsedResult.transcript === '提取中...（请点击刷新或重试）') {
+      const finished = await this.queryASRStatus();
+      if (!finished) return; // 还在提取中或失败，终止后续展示
+    }
+    
+    const textToCopy = this.data.parsedResult.transcript || '';
     if (!textToCopy) {
       wx.showToast({
-        title: '作品未包含文字描述',
+        title: '视频未检测到配音文案',
         icon: 'none'
       });
       return;
@@ -358,10 +425,16 @@ Page({
   /**
    * 文本框右上角“一键复制”独立绑定
    */
-  copyTranscriptText() {
+  async copyTranscriptText() {
     if (!this.data.parsedResult) return;
-    const textToCopy = this.data.parsedResult.transcript || this.data.parsedResult.title || '';
-    if (textToCopy) {
+    
+    if (this.data.parsedResult.transcript === '提取中...（请点击刷新或重试）') {
+      const finished = await this.queryASRStatus();
+      if (!finished) return;
+    }
+    
+    const textToCopy = this.data.parsedResult.transcript || '';
+    if (textToCopy && textToCopy !== '提取中...（请点击刷新或重试）') {
       wx.setClipboardData({
         data: textToCopy,
         success: () => {
