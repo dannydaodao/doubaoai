@@ -88,22 +88,44 @@ function getAliyunToken(accessKeyId, accessKeySecret) {
  */
 function downloadVideoBuffer(videoUrl) {
   return new Promise((resolve) => {
+    let referer = '';
+    if (videoUrl.includes('douyin')) referer = 'https://www.douyin.com/';
+    if (videoUrl.includes('bilibili') || videoUrl.includes('hdslb')) referer = 'https://www.bilibili.com/';
+    if (videoUrl.includes('xiaohongshu') || videoUrl.includes('xhs')) referer = 'https://www.xiaohongshu.com/';
+    if (videoUrl.includes('kuaishou') || videoUrl.includes('yximgs')) referer = 'https://www.kuaishou.com/';
+
+    const headers = {
+      'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1'
+    };
+    if (referer) headers['Referer'] = referer;
+
     const lib = videoUrl.startsWith('https') ? https : http;
-    lib.get(videoUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
-        'Referer': 'https://www.douyin.com/'
-      }
-    }, (res) => {
-      // 跟随 302 重定向
+    lib.get(videoUrl, { headers }, (res) => {
+      // 跟随 302/301 重定向
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        downloadVideoBuffer(res.headers.location).then(resolve);
+        let loc = res.headers.location;
+        if (!loc.startsWith('http')) {
+           const { URL } = require('url');
+           loc = new URL(loc, videoUrl).toString();
+        }
+        downloadVideoBuffer(loc).then(resolve);
         return;
       }
+      
+      // 核心修复：如果不是 2xx 成功状态码，坚决认为下载失败，绝不保存 403 报错页面
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        console.error(`Download failed with status ${res.statusCode} for ${videoUrl}`);
+        resolve(null);
+        return;
+      }
+      
       const chunks = [];
       res.on('data', chunk => chunks.push(chunk));
       res.on('end', () => resolve(Buffer.concat(chunks)));
-    }).on('error', () => resolve(null));
+    }).on('error', (err) => {
+      console.error('Download video HTTP error:', err);
+      resolve(null);
+    });
   });
 }
 
@@ -649,6 +671,37 @@ async function parseSph(rawUrl, text) {
 
 // 云函数入口主函数（0.1秒纯解析、超强稳定、零负荷）
 exports.main = async (event, context) => {
+  // 核心功能：代理下载视频到云存储，绕过小程序合法域名限制
+  if (event.action === 'proxy_download') {
+    if (!event.url) return { code: 400, msg: '缺少下载链接' };
+    try {
+      const buffer = await downloadVideoBuffer(event.url);
+      if (!buffer || buffer.length === 0) return { code: 500, msg: '下载视频流失败，请重试' };
+
+      const cloudPath = `temp_videos/video_${Date.now()}_${Math.floor(Math.random()*1000)}.mp4`;
+      const uploadRes = await cloud.uploadFile({
+        cloudPath: cloudPath,
+        fileContent: buffer
+      });
+      return { code: 200, fileID: uploadRes.fileID };
+    } catch (e) {
+      console.error('Proxy download error:', e);
+      return { code: 500, msg: e.message };
+    }
+  }
+
+  // 清理代理下载产生的临时文件（由于云函数创建的文件前端无权删除，必须交由云函数自行删除）
+  if (event.action === 'delete_file') {
+    if (!event.fileID) return { code: 400 };
+    try {
+      await cloud.deleteFile({ fileList: [event.fileID] });
+      return { code: 200 };
+    } catch (e) {
+      console.error('Delete file error:', e);
+      return { code: 500 };
+    }
+  }
+
   // 单独处理查询 ASR 任务的逻辑
   if (event.action === 'query_asr') {
     if (!event.taskId) return { code: 400, msg: '缺少 taskId' };

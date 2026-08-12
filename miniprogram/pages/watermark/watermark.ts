@@ -203,39 +203,53 @@ Page({
       return;
     }
 
-    wx.showLoading({
-      title: '正在保存视频 0%',
-      mask: true
-    });
+    wx.showLoading({ title: '正在获取下载通道...', mask: true });
 
-    const downloadTask = wx.downloadFile({
-      url: url,
-      success: (res) => {
-        if (res.statusCode === 200) {
-          this.saveVideoFileToAlbum(res.tempFilePath);
+    // 1. 调用云函数，将外网视频代理下载到微信云存储 (绕过域名限制)
+    wx.cloud.callFunction({
+      name: 'doubaoai',
+      data: {
+        action: 'proxy_download',
+        url: url
+      },
+      success: (res: any) => {
+        if (res.result && res.result.code === 200 && res.result.fileID) {
+          const fileID = res.result.fileID;
+          
+          wx.showLoading({ title: '正在保存到手机...', mask: true });
+          
+          // 2. 从云存储安全下载到本地 (不受任何业务域名限制)
+          wx.cloud.downloadFile({
+            fileID: fileID,
+            success: (dlRes) => {
+              if (dlRes.statusCode === 200) {
+                this.saveVideoFileToAlbum(dlRes.tempFilePath);
+              } else {
+                wx.hideLoading();
+                wx.showToast({ title: '视频下载失败', icon: 'none' });
+              }
+              // 3. 下载完成后调用云函数删除云端文件，防止占用云存储空间
+              wx.cloud.callFunction({
+                name: 'doubaoai',
+                data: { action: 'delete_file', fileID: fileID }
+              }).catch(console.error);
+            },
+            fail: (err) => {
+              wx.hideLoading();
+              console.error('Cloud download fail:', err);
+              wx.showToast({ title: '云端文件下载错误', icon: 'none' });
+            }
+          });
         } else {
           wx.hideLoading();
-          wx.showToast({
-            title: '视频下载失败',
-            icon: 'none'
-          });
+          wx.showToast({ title: res.result?.msg || '获取下载通道失败', icon: 'none' });
         }
       },
       fail: (err) => {
         wx.hideLoading();
-        console.error('Download video fail:', err);
-        wx.showToast({
-          title: '网络下载错误',
-          icon: 'none'
-        });
+        console.error('Proxy cloud function fail:', err);
+        wx.showToast({ title: '云函数代理请求失败', icon: 'none' });
       }
-    });
-
-    downloadTask.onProgressUpdate((progressRes) => {
-      wx.showLoading({
-        title: `正在保存视频 ${progressRes.progress}%`,
-        mask: true
-      });
     });
   },
 
