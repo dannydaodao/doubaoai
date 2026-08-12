@@ -4,6 +4,8 @@ const https = require('https');
 const http = require('http');
 const crypto = require('crypto');
 const querystring = require('querystring');
+const fs = require('fs');
+const path = require('path');
 
 // =========================================================================
 // 阿里云 ASR 智能语音识别纯净版配置 (从云函数环境变量中读取)
@@ -84,9 +86,9 @@ function getAliyunToken(accessKeyId, accessKeySecret) {
 }
 
 /**
- * 下载视频二进制数据 (云函数自身下载，绕过 CDN 防盗链)
+ * 下载视频到云函数的 /tmp 临时目录 (流式写入，防止大视频撑爆 256MB 内存导致极度降速)
  */
-function downloadVideoBuffer(videoUrl) {
+function downloadVideoToTemp(videoUrl) {
   return new Promise((resolve) => {
     let referer = '';
     if (videoUrl.includes('douyin')) referer = 'https://www.douyin.com/';
@@ -108,7 +110,7 @@ function downloadVideoBuffer(videoUrl) {
            const { URL } = require('url');
            loc = new URL(loc, videoUrl).toString();
         }
-        downloadVideoBuffer(loc).then(resolve);
+        downloadVideoToTemp(loc).then(resolve);
         return;
       }
       
@@ -119,9 +121,21 @@ function downloadVideoBuffer(videoUrl) {
         return;
       }
       
-      const chunks = [];
-      res.on('data', chunk => chunks.push(chunk));
-      res.on('end', () => resolve(Buffer.concat(chunks)));
+      const tempPath = path.join('/tmp', `video_${Date.now()}_${Math.floor(Math.random()*1000)}.mp4`);
+      const fileStream = fs.createWriteStream(tempPath);
+      
+      res.pipe(fileStream);
+      
+      fileStream.on('finish', () => {
+        resolve(tempPath);
+      });
+
+      fileStream.on('error', (err) => {
+        console.error('File stream error:', err);
+        fs.unlink(tempPath, () => {});
+        resolve(null);
+      });
+      
     }).on('error', (err) => {
       console.error('Download video HTTP error:', err);
       resolve(null);
@@ -675,14 +689,18 @@ exports.main = async (event, context) => {
   if (event.action === 'proxy_download') {
     if (!event.url) return { code: 400, msg: '缺少下载链接' };
     try {
-      const buffer = await downloadVideoBuffer(event.url);
-      if (!buffer || buffer.length === 0) return { code: 500, msg: '下载视频流失败，请重试' };
+      const tempFilePath = await downloadVideoToTemp(event.url);
+      if (!tempFilePath) return { code: 500, msg: '下载视频流失败，请重试' };
 
       const cloudPath = `temp_videos/video_${Date.now()}_${Math.floor(Math.random()*1000)}.mp4`;
       const uploadRes = await cloud.uploadFile({
         cloudPath: cloudPath,
-        fileContent: buffer
+        fileContent: fs.createReadStream(tempFilePath)
       });
+      
+      // 上传完毕后立即删除云函数本地磁盘里的临时文件，释放空间
+      fs.unlink(tempFilePath, () => {});
+      
       return { code: 200, fileID: uploadRes.fileID };
     } catch (e) {
       console.error('Proxy download error:', e);
